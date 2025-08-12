@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Calculator by Jahid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --accent: #ff4e50;
+            --success: #38ef7d;
+            --warning: #f9d423;
+            --danger: #e94057;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --text: #495057;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            color: var(--dark);
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 900px;
+            padding: 25px;
+            margin: 15px 0;
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 700;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: clamp(1rem, 3vw, 1.1rem);
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            transition: all 0.3s;
+        }
+
+        select, input {
+            background: var(--light);
+        }
+
+        select:focus, input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2);
+        }
+
+        button {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            margin-top: 12px;
+            font-size: clamp(1rem, 3vw, 1.1rem);
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .person-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .person-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .person-btn {
+            background: var(--warning);
+            color: var(--dark);
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: break-word;
+        }
+
+        .person-btn.completed {
+            background: var(--success);
+            color: white;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #extraCostBtn {
+            background: var(--accent);
+        }
+
+        #submitBtn {
+            background: var(--success);
+        }
+
+        .results {
+            margin-top: 20px;
+            background: var(--light);
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .results-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .results h2 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: clamp(1.3rem, 3vw, 1.8rem);
+        }
+
+        .results-table {
+            width: 100%;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+            white-space: nowrap;
+        }
+
+        th {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:nth-child(even) {
+            background: rgba(106, 17, 203, 0.05);
+        }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .summary {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary p {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .person-buttons {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+            
+            .action-buttons, .results-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍛 Meal Calculator by Jahid</h1>
+        
+        <div class="step active" id="step1">
+            <div class="form-group">
+                <label for="month">Select Month</label>
+                <select id="month">
+                    <option value="">-- Select Month --</option>
+                    <option value="January">January</option>
+                    <option value="February">February</option>
+                    <option value="March">March</option>
+                    <option value="April">April</option>
+                    <option value="May">May</option>
+                    <option value="June">June</option>
+                    <option value="July">July</option>
+                    <option value="August">August</option>
+                    <option value="September">September</option>
+                    <option value="October">October</option>
+                    <option value="November">November</option>
+                    <option value="December">December</option>
+                </select>
+            </div>
+            <button id="next1">Register for Month</button>
+        </div>
+        
+        <div class="step" id="step2">
+            <div class="form-group">
+                <label for="totalPersons">How many people are sharing meals?</label>
+                <input type="number" id="totalPersons" placeholder="e.g., 4" min="1">
+            </div>
+            <button id="next2">Next</button>
+        </div>
+        
+        <div class="step" id="step3">
+            <h3 id="monthDisplay"></h3>
+            <div id="nameInputsContainer"></div>
+            <button id="next3">Generate Person Buttons</button>
+        </div>
+        
+        <div class="step" id="step4">
+            <h3 id="monthPersonsDisplay"></h3>
+            <div class="person-buttons" id="personButtons"></div>
+            
+            <div class="action-buttons">
+                <button id="extraCostBtn">Add Extra Cost</button>
+                <button id="submitBtn">Calculate Results</button>
+            </div>
+        </div>
+        
+        <div class="step" id="step5">
+            <h3 id="personNameDisplay"></h3>
+            <div class="form-group">
+                <label for="deposit">Total Deposit (Taka)</label>
+                <input type="number" id="deposit" placeholder="e.g., 2000" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="bazarCost">Total Bazar Cost (Taka)</label>
+                <input type="number" id="bazarCost" placeholder="e.g., 1500" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="meals">Total Meals</label>
+                <input type="number" id="meals" placeholder="e.g., 30" step="0.1">
+            </div>
+            <button id="savePerson">Save Details</button>
+        </div>
+        
+        <div class="results" id="results">
+            <div id="pdfContent">
+                <h2>📊 Monthly Meal Report for <span id="resultMonth"></span></h2>
+                
+                <div class="results-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Deposit</th>
+                                <th>Bazar Cost</th>
+                                <th>Meals</th>
+                                <th>Meal Cost</th>
+                                <th>Due/Refund</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultTable"></tbody>
+                    </table>
+                </div>
+                
+                <div class="summary">
+                    <p>
+                        <span>Total Deposit:</span>
+                        <span id="totalDeposit">0</span> Taka
+                    </p>
+                    <p>
+                        <span>Total Bazar Cost:</span>
+                        <span id="totalBazarCost">0</span> Taka
+                    </p>
+                    <p>
+                        <span>Total Extra Cost:</span>
+                        <span id="totalExtraCost">0</span> Taka
+                    </p>
+                    <p>
+                        <span>Total Cost:</span>
+                        <span id="totalCost">0</span> Taka
+                    </p>
+                    <p>
+                        <span>Total Meals:</span>
+                        <span id="totalMeals">0</span>
+                    </p>
+                    <p class="highlight">
+                        <span>Meal Rate:</span>
+                        <span id="mealRate">0</span> Taka/meal
+                    </p>
+                </div>
+            </div>
+            
+            <div class="results-actions">
+                <button id="downloadPdfBtn">Download as PDF</button>
+                <button id="resetCalc">Start New Calculation</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="extraCostModal">
+        <div class="modal-content">
+            <h3>Add Extra Cost</h3>
+            <div class="form-group">
+                <label for="extraCostAmount">Extra Cost Amount (Taka)</label>
+                <input type="number" id="extraCostAmount" placeholder="e.g., 500" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="extraCostDescription">Description (Optional)</label>
+                <input type="text" id="extraCostDescription" placeholder="e.g., Gas bill, Internet bill">
+            </div>
+            <button id="saveExtraCost">Add Extra Cost</button>
+            <button id="closeExtraCostModal" style="background: var(--danger); margin-top: 10px;">Cancel</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        // App State
+        const state = {
+            month: "",
+            totalPersons: 0,
+            persons: [],
+            personNames: [],
+            extraCosts: [],
+            currentPerson: null,
+            mealRate: 0
+        };
+
+        // DOM Elements
+        const step1 = document.getElementById("step1");
+        const step2 = document.getElementById("step2");
+        const step3 = document.getElementById("step3");
+        const step4 = document.getElementById("step4");
+        const step5 = document.getElementById("step5");
+        const results = document.getElementById("results");
+        
+        const monthSelect = document.getElementById("month");
+        const totalPersonsInput = document.getElementById("totalPersons");
+        const nameInputsContainer = document.getElementById("nameInputsContainer");
+        const personButtonsDiv = document.getElementById("personButtons");
+        const personNameDisplay = document.getElementById("personNameDisplay");
+        const monthDisplay = document.getElementById("monthDisplay");
+        const monthPersonsDisplay = document.getElementById("monthPersonsDisplay");
+        const resultMonth = document.getElementById("resultMonth");
+        const resultTable = document.getElementById("resultTable");
+        const totalDeposit = document.getElementById("totalDeposit");
+        const totalBazarCost = document.getElementById("totalBazarCost");
+        const totalExtraCost = document.getElementById("totalExtraCost");
+        const totalCost = document.getElementById("totalCost");
+        const totalMeals = document.getElementById("totalMeals");
+        const mealRate = document.getElementById("mealRate");
+
+        // Modal Elements
+        const extraCostModal = document.getElementById("extraCostModal");
+        const extraCostAmount = document.getElementById("extraCostAmount");
+        const extraCostDescription = document.getElementById("extraCostDescription");
+
+        // Buttons
+        document.getElementById("next1").addEventListener("click", () => {
+            if (!monthSelect.value) {
+                alert("Please select a month!");
+                return;
+            }
+            state.month = monthSelect.value;
+            transitionStep(step1, step2);
+        });
+
+        document.getElementById("next2").addEventListener("click", () => {
+            const persons = parseInt(totalPersonsInput.value);
+            if (!persons || persons < 1) {
+                alert("Please enter a valid number of persons!");
+                return;
+            }
+            state.totalPersons = persons;
+            generateNameInputs();
+            transitionStep(step2, step3);
+            monthDisplay.textContent = `Month: ${state.month} | Total Persons: ${state.totalPersons}`;
+        });
+
+        document.getElementById("next3").addEventListener("click", () => {
+            const nameInputs = document.querySelectorAll(".person-name-input");
+            state.personNames = Array.from(nameInputs).map(input => input.value.trim() || `Person ${input.dataset.index}`);
+            
+            if (state.personNames.length !== state.totalPersons) {
+                alert("Please fill all names!");
+                return;
+            }
+            
+            generatePersonButtons();
+            transitionStep(step3, step4);
+            monthPersonsDisplay.textContent = `${state.month} - ${state.totalPersons} Persons`;
+        });
+
+        document.getElementById("extraCostBtn").addEventListener("click", () => {
+            extraCostModal.style.display = "flex";
+            extraCostAmount.focus();
+        });
+
+        document.getElementById("saveExtraCost").addEventListener("click", () => {
+            const amount = parseFloat(extraCostAmount.value);
+            const description = extraCostDescription.value || "Extra Cost";
+            
+            if (!amount || amount <= 0) {
+                alert("Please enter a valid amount!");
+                return;
+            }
+            
+            state.extraCosts.push({
+                amount,
+                description
+            });
+            
+            extraCostAmount.value = "";
+            extraCostDescription.value = "";
+            extraCostModal.style.display = "none";
+        });
+
+        document.getElementById("closeExtraCostModal").addEventListener("click", () => {
+            extraCostModal.style.display = "none";
+        });
+
+        function generateNameInputs() {
+            nameInputsContainer.innerHTML = "";
+            for (let i = 1; i <= state.totalPersons; i++) {
+                const div = document.createElement("div");
+                div.className = "form-group";
+                div.innerHTML = `
+                    <label for="personName${i}">Person ${i} Name</label>
+                    <input type="text" id="personName${i}" class="person-name-input" data-index="${i}" placeholder="Enter name">
+                `;
+                nameInputsContainer.appendChild(div);
+            }
+        }
+
+        function generatePersonButtons() {
+            personButtonsDiv.innerHTML = "";
+            state.personNames.forEach((name, index) => {
+                const btn = document.createElement("button");
+                btn.className = "person-btn";
+                btn.textContent = name;
+                btn.dataset.index = index;
+                btn.addEventListener("click", () => {
+                    state.currentPerson = index;
+                    personNameDisplay.textContent = name;
+                    transitionStep(step4, step5);
+                    
+                    if (state.persons[index]) {
+                        document.getElementById("deposit").value = state.persons[index].deposit || "";
+                        document.getElementById("bazarCost").value = state.persons[index].bazarCost || "";
+                        document.getElementById("meals").value = state.persons[index].meals || "";
+                    } else {
+                        document.getElementById("deposit").value = "";
+                        document.getElementById("bazarCost").value = "";
+                        document.getElementById("meals").value = "";
+                    }
+                });
+                personButtonsDiv.appendChild(btn);
+            });
+            document.getElementById("submitBtn").disabled = false;
+        }
+
+        document.getElementById("savePerson").addEventListener("click", () => {
+            const deposit = parseFloat(document.getElementById("deposit").value) || 0;
+            const bazarCost = parseFloat(document.getElementById("bazarCost").value) || 0;
+            const meals = parseFloat(document.getElementById("meals").value) || 0;
+
+            state.persons[state.currentPerson] = {
+                name: state.personNames[state.currentPerson],
+                deposit,
+                bazarCost,
+                meals
+            };
+
+            const buttons = document.querySelectorAll(".person-btn");
+            buttons[state.currentPerson].classList.add("completed");
+            
+            transitionStep(step5, step4);
+        });
+
+        document.getElementById("submitBtn").addEventListener("click", calculateResults);
+
+        function calculateResults() {
+            const totalDepositVal = state.persons.reduce((sum, person) => sum + (person?.deposit || 0), 0);
+            const totalBazarCostVal = state.persons.reduce((sum, person) => sum + (person?.bazarCost || 0), 0);
+            const totalExtraCostVal = state.extraCosts.reduce((sum, cost) => sum + cost.amount, 0);
+            const totalCostVal = totalBazarCostVal + totalExtraCostVal;
+            const totalMealsVal = state.persons.reduce((sum, person) => sum + (person?.meals || 0), 0);
+            const mealRateVal = totalMealsVal > 0 ? totalCostVal / totalMealsVal : 0;
+
+            state.mealRate = mealRateVal;
+
+            resultMonth.textContent = state.month;
+            totalDeposit.textContent = totalDepositVal.toFixed(2);
+            totalBazarCost.textContent = totalBazarCostVal.toFixed(2);
+            totalExtraCost.textContent = totalExtraCostVal.toFixed(2);
+            totalCost.textContent = totalCostVal.toFixed(2);
+            totalMeals.textContent = totalMealsVal.toFixed(2);
+            mealRate.textContent = mealRateVal.toFixed(2);
+
+            resultTable.innerHTML = "";
+            state.personNames.forEach((name, index) => {
+                const person = state.persons[index];
+                
+                const row = document.createElement("tr");
+                const deposit = (person?.deposit || 0);
+                const bazarCost = (person?.bazarCost || 0);
+                const meals = (person?.meals || 0);
+                const mealCost = meals * mealRateVal;
+                const due = mealCost - deposit;
+                
+                row.innerHTML = `
+                    <td>${name}</td>
+                    <td>${deposit.toFixed(2)}</td>
+                    <td>${bazarCost.toFixed(2)}</td>
+                    <td>${meals.toFixed(2)}</td>
+                    <td>${mealCost.toFixed(2)}</td>
+                    <td style="color: ${due >= 0 ? 'var(--danger)' : 'var(--success)'}; font-weight: 600">
+                        ${due >= 0 ? 'Pay: ' + due.toFixed(2) : 'Get: ' + Math.abs(due).toFixed(2)}
+                    </td>
+                `;
+                resultTable.appendChild(row);
+            });
+
+            if (state.extraCosts.length > 0) {
+                const extraCostsRow = document.createElement("tr");
+                extraCostsRow.innerHTML = `
+                    <td colspan="6" style="text-align: center; background: rgba(255, 78, 80, 0.1); font-weight: 500">
+                        Extra Costs Included: ${state.extraCosts.map(ec => `${ec.description} (${ec.amount.toFixed(2)}৳)`).join(", ")}
+                    </td>
+                `;
+                resultTable.appendChild(extraCostsRow);
+            }
+
+            transitionStep(step4, null);
+            results.style.display = "block";
+        }
+
+        document.getElementById("resetCalc").addEventListener("click", () => {
+            state.month = "";
+            state.totalPersons = 0;
+            state.persons = [];
+            state.personNames = [];
+            state.extraCosts = [];
+            state.currentPerson = null;
+            state.mealRate = 0;
+
+            monthSelect.value = "";
+            totalPersonsInput.value = "";
+            nameInputsContainer.innerHTML = "";
+            personButtonsDiv.innerHTML = "";
+            results.style.display = "none";
+            document.getElementById("submitBtn").disabled = false;
+            
+            document.querySelectorAll(".step").forEach(step => step.classList.remove("active"));
+            step1.classList.add("active");
+        });
+
+        // ===== Updated Function for PDF Download with Border =====
+        document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+            const { jsPDF } = window.jspdf;
+            const pdfContent = document.getElementById("pdfContent");
+            const downloadButton = document.getElementById("downloadPdfBtn");
+
+            downloadButton.style.visibility = 'hidden';
+
+            html2canvas(pdfContent, {
+                scale: 2 // Improves image quality
+            }).then(canvas => {
+                downloadButton.style.visibility = 'visible';
+
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('l', 'mm', 'a4');
+
+                // Interpret "0.2 border" as a 5mm margin (approx. 0.2 inches)
+                const margin = 5;
+
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+
+                // Calculate the content area dimensions, leaving space for the margin
+                const contentWidth = pageWidth - margin * 2;
+                const contentHeightOnPage = pageHeight - margin * 2;
+
+                // Calculate the total height the image will have when scaled to fit the content width
+                const totalImageHeight = (canvas.height * contentWidth) / canvas.width;
+
+                let position = 0;
+                let heightLeft = totalImageHeight;
+
+                // Add the first page
+                pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, totalImageHeight);
+                heightLeft -= contentHeightOnPage;
+
+                // Add new pages if the content is taller than the available space on one page
+                while (heightLeft > 0) {
+                    position -= contentHeightOnPage;
+                    pdf.addPage();
+                    // On the new page, add the image again, but shift its Y position up to show the next part
+                    pdf.addImage(imgData, 'PNG', margin, position + margin, contentWidth, totalImageHeight);
+                    heightLeft -= contentHeightOnPage;
+                }
+                
+                pdf.save(`Meal_Report_${state.month}.pdf`);
+            }).catch(err => {
+                downloadButton.style.visibility = 'visible';
+                console.error("Error generating PDF:", err);
+                alert("Could not generate PDF. See console for details.");
+            });
+        });
+
+        function transitionStep(fromStep, toStep) {
+            if (fromStep) fromStep.classList.remove("active");
+            if (toStep) toStep.classList.add("active");
+        }
+    </script>
+</body>
+</html>
